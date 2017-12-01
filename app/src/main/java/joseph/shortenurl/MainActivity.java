@@ -53,28 +53,34 @@ public class MainActivity extends AppCompatActivity {
         translateBtn.setOnClickListener(new View.OnClickListener() {
             String result;
             long id;
-            int count=0;
+            int count;
             @Override
             public void onClick(View v) {
                 // 아무런 정보도 입력하지 않은 상태에서 버튼을 눌렀을 때에 대한 예외처리
                 if (originUrlEditTxt.getText().toString().equals("")) {
+                    shortenUrlResultTxt.setText("");
+                    countTxt.setText("");
                     Toast.makeText(MainActivity.this, "URL을 입력하여 주세요.", Toast.LENGTH_SHORT).show();
                 }
                 // 올바르지 않은 URL형식을 입력했을 때의 예외처리
                 else if (!isUrlMatch(originUrlEditTxt.getText().toString())) {
+                    shortenUrlResultTxt.setText("");
+                    countTxt.setText("");
                     Toast.makeText(MainActivity.this, "올바른 URL 형식을 입력하여 주세요.", Toast.LENGTH_SHORT).show();
                 }
                 // 올바른 URL 입력 시 변환
                 else {
+                    count=0;
                     String originalUrl = originUrlEditTxt.getText().toString();
-                    id = dbHelper.getId();
-                    result = urlShorten.toBase62(id);
                     // 데이터베이스에 해당 url이 없는 경우 삽입(중복방지)
                     if (!dbHelper.isUrlExist(originalUrl)) {
                         dbHelper.insert(originalUrl, "-",0);
+                        id = dbHelper.getId(originalUrl);
                     } else {
+                        id = dbHelper.getId(originalUrl);
                         count = dbHelper.getCount(id);
                     }
+                    result = urlShorten.toBase62(id);
                     count++;
                     dbHelper.update(result,count, id);
                     shortenUrlResultTxt.setText("http://localhost/" + result);

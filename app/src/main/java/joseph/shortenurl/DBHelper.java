@@ -65,15 +65,17 @@ public class DBHelper extends SQLiteOpenHelper {
         return result;
     }
 
-    public Long getId() {
+    public Long getId(String originalUrl){
         SQLiteDatabase db = getReadableDatabase();
-        long lastId=0;
-        String sql = "SELECT ROWID from URL_LIST order by ROWID DESC limit 1";
-        Cursor c = db.rawQuery(sql, null);
-        if (c != null && c.moveToFirst()) {
-            lastId = c.getLong(0); //The 0 is the column index, we only have 1 column, so the index is 0
+        long id=0;
+        String sql = "SELECT * FROM URL_LIST WHERE originalUrl = '"+originalUrl+"';";
+        Cursor result = db.rawQuery(sql, null);
+        // result(Cursor 객체)가 비어 있으면 false 리턴
+        if(result.moveToFirst()){
+            id = result.getLong(0);
         }
-        return lastId;
+        result.close();
+        return id;
     }
 
     // 원래 URL DB에서 가져와 반환하는 함수
