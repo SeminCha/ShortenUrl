@@ -1,24 +1,14 @@
 package joseph.shortenurl;
 
-import java.util.zip.CRC32;
-
 /**
- * Created by Semin on 2017-11-30.
+ * URL을 변환하는 기능이 있는 클래스
+ * 기존의 URL -> 데이터베이스의 키값을 62진법을 이용해 변환
  */
 
 public class UrlShorten {
     private String codec = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    private long id;
 
     public UrlShorten() {
-    }
-
-    public long getCRCHashValue(String originalUrl) {
-        CRC32 crc = new CRC32();
-        crc.update(originalUrl.getBytes());
-        System.out.println(crc.getValue());
-        id = crc.getValue();
-        return crc.getValue();
     }
 
     public String toBase62(long hashDigit) {
@@ -31,7 +21,6 @@ public class UrlShorten {
             //System.out.println(mod);
             tempSb.insert(0, codec.charAt(mod));
         }
-
         return tempSb.toString();
     }
 
@@ -45,16 +34,6 @@ public class UrlShorten {
         }
         return result;
     }
-
-    public String getShortUrl(String originalUrl) {
-        long hashDigit = getCRCHashValue(originalUrl);
-        return toBase62(hashDigit);
-    }
-
-    public long getId() {
-        return id;
-    }
-
 }
 
 

@@ -4,9 +4,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Commonly used regular expression patterns.
+ * 통상적으로 이용되는 정규식 패턴 클래스
  * 깃허브에서 가져옴
  */
+
 public class Patterns {
 
     @Deprecated

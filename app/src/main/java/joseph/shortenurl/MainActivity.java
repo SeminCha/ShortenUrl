@@ -11,7 +11,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,29 +47,36 @@ public class MainActivity extends AppCompatActivity {
         totalTxt = (TextView) findViewById(R.id.totalTxt);
         dbHelper = new DBHelper(getApplicationContext(), "URL.db", null, 1);
 
+        // URL 변환 버튼에 대한 기능
         translateBtn.setOnClickListener(new View.OnClickListener() {
             String result;
-
+            long id;
             @Override
             public void onClick(View v) {
+                // 아무런 정보도 입력하지 않은 상태에서 버튼을 눌렀을 때에 대한 예외처리
                 if (originUrlEditTxt.getText().toString().equals("")) {
                     Toast.makeText(MainActivity.this, "URL을 입력하여 주세요.", Toast.LENGTH_SHORT).show();
-                } else if (!isUrlMatch(originUrlEditTxt.getText().toString())) {
+                }
+                // 올바르지 않은 URL형식을 입력했을 때의 예외처리
+                else if (!isUrlMatch(originUrlEditTxt.getText().toString())) {
                     Toast.makeText(MainActivity.this, "올바른 URL 형식을 입력하여 주세요.", Toast.LENGTH_SHORT).show();
-                } else {
-                    result = urlShorten.getShortUrl(originUrlEditTxt.getText().toString());
-                    shortenUrlResultTxt.setText("http://localhost/" + result);
-                    long id = urlShorten.getId();
+                }
+                // 올바른 URL 입력 시 변환
+                else {
                     String originalUrl = originUrlEditTxt.getText().toString();
-                    String shortUrl = "http://localhost/" + result;
-                    //데이터 삽입
-                    if (!dbHelper.isIdExist(id)) {
-                        dbHelper.insert(id, originalUrl, shortUrl);
+                    id = dbHelper.getId();
+                    result = urlShorten.toBase62(id);
+                    // 데이터베이스에 해당 url이 없는 경우 삽입(중복방지)
+                    if (!dbHelper.isUrlExist(originalUrl)) {
+                        dbHelper.insert(originalUrl, "-");
+                        dbHelper.update(result, id);
                     }
+                    shortenUrlResultTxt.setText("http://localhost/" + result);
                 }
             }
         });
 
+        // URL 복사버튼 클릭기능
         copyBtn.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -85,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // 공유하기 버튼 클릭기능
         shareBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // 웹뷰를 통한 URL 열기
         goBtn.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -106,12 +114,15 @@ public class MainActivity extends AppCompatActivity {
                 String result;
                 if (!openBrowserEditTxt.getText().toString().equals("")) {
                     String url = openBrowserEditTxt.getText().toString();
+                    // short url을 입력하였을 경우
                     if (isMyHost(url)) {
                         result = getOriginalUrl(url);
                         if (!result.equals("NONE")) {
+                            // 데이터베이스에서 가져온 원래 URL 저장
                             url = result;
                         }
                     }
+                    // URL 열기
                     Intent intent = new Intent(MainActivity.this, WebViewClient.class);
                     intent.putExtra("url", url);
                     startActivity(intent);
@@ -120,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // 올바른 URL인지 확인하는 함수
     public boolean isUrlMatch(String s) {
         try {
             Pattern patt = Patterns.WEB_URL;
@@ -130,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // 변환된 URL인지 확인하는 함수
     public boolean isMyHost(String url) {
         // Base62로 인코딩된 문자를 다시 디코딩
         if (url.startsWith("http://localhost/")) {
@@ -139,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // 원래 URL을 가져오기 위한 함수
     public String getOriginalUrl(String url) {
         Long id;
         String originalUrl;

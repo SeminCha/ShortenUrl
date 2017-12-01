@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
- * Created by Semin on 2017-12-01.
+ * 데이터베이스 관련 기능 클래스
  */
 
 public class DBHelper extends SQLiteOpenHelper {
@@ -16,13 +16,11 @@ public class DBHelper extends SQLiteOpenHelper {
         super(context, name, factory, version);
     }
 
-    // DB를 새로 생성할 때 호출되는 함수
+    // DB를 새로 생성하는 함수
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // 새로운 테이블 생성
-        /* 이름은 MONEYBOOK이고, 자동으로 값이 증가하는 _id 정수형 기본키 컬럼과
-        item 문자열 컬럼, price 정수형 컬럼, create_at 문자열 컬럼으로 구성된 테이블을 생성. */
-        db.execSQL("CREATE TABLE URL_LIST (_id INTEGER, originalUrl TEXT, shortUrl TEXT);");
+
+        db.execSQL("CREATE TABLE URL_LIST (id INTEGER PRIMARY KEY AUTOINCREMENT, originalUrl TEXT, shortUrl TEXT);");
     }
 
     // DB 업그레이드를 위해 버전이 변경될 때 호출되는 함수
@@ -31,14 +29,23 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public void insert(long id, String originalUrl, String shortUrl) {
+    // 데이터 삽입 함수
+    public void insert(String originalUrl, String shortUrl) {
         // 읽고 쓰기가 가능하게 DB 열기
         SQLiteDatabase db = getWritableDatabase();
         // DB에 입력한 값으로 행 추가
-        db.execSQL("INSERT INTO URL_LIST VALUES(" + id + ", '" + originalUrl + "', '" + shortUrl + "');");
+        db.execSQL("INSERT INTO URL_LIST VALUES(null, '" + originalUrl + "', '" + shortUrl + "');");
         db.close();
     }
 
+    public void update(String shortUrl, long id) {
+        SQLiteDatabase db = getWritableDatabase();
+        // 입력한 항목과 일치하는 행의 정보 수정
+        db.execSQL("UPDATE URL_LIST SET shortUrl= '" + shortUrl + "' WHERE id= " + id + ";");
+        db.close();
+    }
+
+    // 전체 데이터 출력 함수
     public String getResult() {
         // 읽기가 가능하게 DB 열기
         SQLiteDatabase db = getReadableDatabase();
@@ -47,21 +54,31 @@ public class DBHelper extends SQLiteOpenHelper {
         // DB에 있는 데이터를 쉽게 처리하기 위해 Cursor를 사용하여 테이블에 있는 모든 데이터 출력
         Cursor cursor = db.rawQuery("SELECT * FROM URL_LIST", null);
         while (cursor.moveToNext()) {
-            result += cursor.getLong(0)
+            result += cursor.getInt(0)
                     + " , "
                     + cursor.getString(1)
                     + " , "
                     + cursor.getString(2)
                     + "\n";
         }
-
         return result;
     }
 
-    // Data 읽기(꺼내오기)
+    public Long getId() {
+        SQLiteDatabase db = getReadableDatabase();
+        long lastId=0;
+        String sql = "SELECT ROWID from URL_LIST order by ROWID DESC limit 1";
+        Cursor c = db.rawQuery(sql, null);
+        if (c != null && c.moveToFirst()) {
+            lastId = c.getLong(0); //The 0 is the column index, we only have 1 column, so the index is 0
+        }
+        return lastId;
+    }
+
+    // 원래 URL DB에서 가져와 반환하는 함수
     public String getOriginUrl(long index){
         SQLiteDatabase db = getReadableDatabase();
-        String sql = "select * from URL_LIST where _id = "+index+";";
+        String sql = "select * from URL_LIST where id = "+index+";";
         Cursor result = db.rawQuery(sql, null);
         String originalUrl="";
         // result(Cursor 객체)가 비어 있으면 false 리턴
@@ -72,10 +89,24 @@ public class DBHelper extends SQLiteOpenHelper {
         return originalUrl;
     }
 
-    // Data 읽기(꺼내오기)
-    public boolean isIdExist(long index){
+    // 해당 url이 에 있는지 여부 반환하는 함수
+    public boolean isIdExist(long id){
         SQLiteDatabase db = getReadableDatabase();
-        String sql = "SELECT * FROM URL_LIST WHERE _id = "+index+";";
+        String sql = "SELECT * FROM URL_LIST WHERE id = "+id+";";
+        Cursor result = db.rawQuery(sql, null);
+        boolean isExist=false;
+        // result(Cursor 객체)가 비어 있으면 false 리턴
+        if(result.moveToFirst()){
+            isExist = true;
+        }
+        result.close();
+        return isExist;
+    }
+
+    // 변환된 URL이 DB에 있는지 여부 반환하는 함수
+    public boolean isUrlExist(String originalUrl){
+        SQLiteDatabase db = getReadableDatabase();
+        String sql = "SELECT * FROM URL_LIST WHERE originalUrl = '"+originalUrl+"';";
         Cursor result = db.rawQuery(sql, null);
         boolean isExist=false;
         // result(Cursor 객체)가 비어 있으면 false 리턴

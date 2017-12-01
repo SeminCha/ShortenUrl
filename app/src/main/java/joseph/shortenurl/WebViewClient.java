@@ -15,6 +15,7 @@ public class WebViewClient extends AppCompatActivity {
 
     WebView webView;
 
+    // 웹뷰를 통한 url 열기 함수
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view);
@@ -29,7 +30,7 @@ public class WebViewClient extends AppCompatActivity {
         webView.loadUrl(url);
     }
 
-    // SSL Error Tolerant Web View Client
+    // SSL Error 예외처리 함수
     private class SSLTolerentWebViewClient extends android.webkit.WebViewClient {
         @Override
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
