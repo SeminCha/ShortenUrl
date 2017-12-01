@@ -1,7 +1,5 @@
 package joseph.shortenurl;
 
-//깃허브 라이브러리에서 가져옴
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

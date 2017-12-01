@@ -8,6 +8,7 @@ import java.util.zip.CRC32;
 
 public class UrlShorten {
     private String codec = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private long id;
 
     public UrlShorten() {
     }
@@ -16,6 +17,7 @@ public class UrlShorten {
         CRC32 crc = new CRC32();
         crc.update(originalUrl.getBytes());
         System.out.println(crc.getValue());
+        id = crc.getValue();
         return crc.getValue();
     }
 
@@ -33,10 +35,26 @@ public class UrlShorten {
         return tempSb.toString();
     }
 
+    public long fromBase62(String s) {
+        long result=0;
+        long power=1;
+        for (int i = s.length()-1; i>=0 ; i--) {
+            int digit = codec.indexOf(s.charAt(i));
+            result += digit * power;
+            power *= 62;
+        }
+        return result;
+    }
+
     public String getShortUrl(String originalUrl) {
         long hashDigit = getCRCHashValue(originalUrl);
         return toBase62(hashDigit);
     }
+
+    public long getId() {
+        return id;
+    }
+
 }
 
 

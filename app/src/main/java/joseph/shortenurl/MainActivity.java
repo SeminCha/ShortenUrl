@@ -26,7 +26,9 @@ public class MainActivity extends AppCompatActivity {
     private static Button goBtn;
     private UrlShorten urlShorten;
     private static WebView webView;
-    ClipboardManager clipboardManager;
+    private ClipboardManager clipboardManager;
+    private static TextView totalTxt;
+    private static DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
         webView = (WebView) findViewById(R.id.webView);
         urlShorten = new UrlShorten();
         clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        totalTxt = (TextView) findViewById(R.id.totalTxt);
+        dbHelper = new DBHelper(getApplicationContext(), "URL.db", null, 1);
 
         translateBtn.setOnClickListener(new View.OnClickListener() {
             String result;
@@ -56,6 +60,13 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     result = urlShorten.getShortUrl(originUrlEditTxt.getText().toString());
                     shortenUrlResultTxt.setText("http://localhost/" + result);
+                    long id = urlShorten.getId();
+                    String originalUrl = originUrlEditTxt.getText().toString();
+                    String shortUrl = "http://localhost/" + result;
+                    //데이터 삽입
+                    if (!dbHelper.isIdExist(id)) {
+                        dbHelper.insert(id, originalUrl, shortUrl);
+                    }
                 }
             }
         });
@@ -69,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                     clipData = ClipData.newPlainText("label", shortenUrlResultTxt.getText().toString());
                     clipboardManager.setPrimaryClip(clipData);
                     Toast.makeText(MainActivity.this, "URL이 복사되었습니다.", Toast.LENGTH_SHORT).show();
+                    totalTxt.setText(dbHelper.getResult());
                 }
             }
         });
@@ -91,8 +103,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ClipData clipData;
+                String result;
                 if (!openBrowserEditTxt.getText().toString().equals("")) {
                     String url = openBrowserEditTxt.getText().toString();
+                    if (isMyHost(url)) {
+                        result = getOriginalUrl(url);
+                        if (!result.equals("NONE")) {
+                            url = result;
+                        }
+                    }
                     Intent intent = new Intent(MainActivity.this, WebViewClient.class);
                     intent.putExtra("url", url);
                     startActivity(intent);
@@ -100,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 
     public boolean isUrlMatch(String s) {
         try {
@@ -111,4 +129,31 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
     }
+
+    public boolean isMyHost(String url) {
+        // Base62로 인코딩된 문자를 다시 디코딩
+        if (url.startsWith("http://localhost/")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public String getOriginalUrl(String url) {
+        Long id;
+        String originalUrl;
+        id = urlShorten.fromBase62(url.substring(17));
+        //해당 shortenUrl이 있는 경우
+        if (dbHelper.isIdExist(id)) {
+            originalUrl = dbHelper.getOriginUrl(id);
+            return originalUrl;
+        } else {
+            return "NONE";
+        }
+    }
 }
+
+
+
+
+
