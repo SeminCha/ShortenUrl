@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 public class MainActivity extends AppCompatActivity {
 
     private static TextView shortenUrlResultTxt;
+    private static TextView countTxt;
     private static AutoCompleteTextView originUrlEditTxt;
     private static AutoCompleteTextView openBrowserEditTxt;
     private static Button translateBtn;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         shortenUrlResultTxt = (TextView) findViewById(R.id.resultTxt);
+        countTxt  = (TextView) findViewById(R.id.countTxt);
         originUrlEditTxt = (AutoCompleteTextView) findViewById(R.id.originUrlEditTxt);
         openBrowserEditTxt = (AutoCompleteTextView) findViewById(R.id.openBrowserEditTxt);
         translateBtn = (Button) findViewById(R.id.translationBtn);
@@ -44,13 +46,14 @@ public class MainActivity extends AppCompatActivity {
         webView = (WebView) findViewById(R.id.webView);
         urlShorten = new UrlShorten();
         clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        totalTxt = (TextView) findViewById(R.id.totalTxt);
+        //totalTxt = (TextView) findViewById(R.id.totalTxt);
         dbHelper = new DBHelper(getApplicationContext(), "URL.db", null, 1);
 
         // URL 변환 버튼에 대한 기능
         translateBtn.setOnClickListener(new View.OnClickListener() {
             String result;
             long id;
+            int count=0;
             @Override
             public void onClick(View v) {
                 // 아무런 정보도 입력하지 않은 상태에서 버튼을 눌렀을 때에 대한 예외처리
@@ -68,10 +71,14 @@ public class MainActivity extends AppCompatActivity {
                     result = urlShorten.toBase62(id);
                     // 데이터베이스에 해당 url이 없는 경우 삽입(중복방지)
                     if (!dbHelper.isUrlExist(originalUrl)) {
-                        dbHelper.insert(originalUrl, "-");
-                        dbHelper.update(result, id);
+                        dbHelper.insert(originalUrl, "-",0);
+                    } else {
+                        count = dbHelper.getCount(id);
                     }
+                    count++;
+                    dbHelper.update(result,count, id);
                     shortenUrlResultTxt.setText("http://localhost/" + result);
+                    countTxt.setText("총 "+count+" 번 변환됨");
                 }
             }
         });
@@ -86,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                     clipData = ClipData.newPlainText("label", shortenUrlResultTxt.getText().toString());
                     clipboardManager.setPrimaryClip(clipData);
                     Toast.makeText(MainActivity.this, "URL이 복사되었습니다.", Toast.LENGTH_SHORT).show();
-                    totalTxt.setText(dbHelper.getResult());
+                    //totalTxt.setText(dbHelper.getResult());
                 }
             }
         });

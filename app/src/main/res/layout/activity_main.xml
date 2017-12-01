@@ -6,42 +6,44 @@
     android:layout_height="match_parent"
     tools:context="joseph.shortenurl.MainActivity">
 
+
     <TextView
         android:layout_width="280dp"
         android:layout_height="60dp"
         android:gravity="center_vertical"
-        android:text="  변환할 URL을 입력해 주세요"
-        android:textSize="16dp"
+        android:text=" 변환할 URL을 입력해 주세요"
+        android:textColor="@color/black"
+        android:textSize="17dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.115"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.035" />
 
     <AutoCompleteTextView
         android:id="@+id/originUrlEditTxt"
         android:layout_width="360dp"
         android:layout_height="47dp"
+        android:singleLine="true"
         android:text=""
-        android:singleLine = "true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.129" />
+        app:layout_constraintVertical_bias="0.163" />
 
     <Button
         android:id="@+id/translationBtn"
-        android:layout_width="69dp"
-        android:layout_height="38dp"
+        android:layout_width="80dp"
+        android:layout_height="45dp"
         android:text="변환"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.949"
+        app:layout_constraintHorizontal_bias="0.947"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.033" />
+        app:layout_constraintVertical_bias="0.034" />
 
     <TextView
         android:id="@+id/textView"
@@ -49,54 +51,71 @@
         android:layout_height="27dp"
         android:gravity="center_vertical"
         android:text="결과"
-        android:textSize="16dp"
+        android:textColor="@color/black"
+        android:textSize="17dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.118"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.239" />
+        app:layout_constraintVertical_bias="0.285" />
 
     <TextView
         android:id="@+id/resultTxt"
         android:layout_width="360dp"
         android:layout_height="28dp"
         android:gravity="center"
+        android:singleLine="true"
         android:text=""
-        android:singleLine = "true"
-        android:textSize="13dp"
         android:textIsSelectable="true"
+        android:textSize="18dp"
+        android:textColor="@color/nave_mdarker"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.322" />
+        app:layout_constraintVertical_bias="0.366" />
+
+    <TextView
+        android:id="@+id/countTxt"
+        android:layout_width="360dp"
+        android:layout_height="28dp"
+        android:gravity="center"
+        android:singleLine="true"
+        android:text=""
+        android:textSize="15dp"
+        android:textColor="@color/navy_middle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.457" />
 
     <Button
         android:id="@+id/copyBtn"
-        android:layout_width="173dp"
-        android:layout_height="34dp"
+        android:layout_width="178dp"
+        android:layout_height="40dp"
         android:text="복사하기"
-        android:textSize="12dp"
+        android:textSize="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.075"
+        app:layout_constraintHorizontal_bias="0.077"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.406" />
+        app:layout_constraintVertical_bias="0.564" />
 
     <Button
         android:id="@+id/shareBtn"
-        android:layout_width="173dp"
-        android:layout_height="34dp"
+        android:layout_width="178dp"
+        android:layout_height="40dp"
         android:text="공유하기"
-        android:textSize="12dp"
+        android:textSize="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.924"
+        app:layout_constraintHorizontal_bias="0.922"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.406" />
+        app:layout_constraintVertical_bias="0.564" />
 
     <AutoCompleteTextView
         android:id="@+id/openBrowserEditTxt"
@@ -108,43 +127,48 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.666" />
+        app:layout_constraintVertical_bias="0.836" />
 
     <Button
         android:id="@+id/goBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="80dp"
+        android:layout_height="45dp"
         android:text="Go"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.945"
+        app:layout_constraintHorizontal_bias="0.947"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.66" />
+        app:layout_constraintVertical_bias="0.834" />
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="249dp"
+        android:layout_height="40dp"
+        android:singleLine="true"
         android:text="브라우저로 열기"
+        android:textColor="@color/black"
+        android:textSize="17dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.055"
+        app:layout_constraintHorizontal_bias="0.118"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.544" />
-
-    <TextView
-        android:id="@+id/totalTxt"
-        android:layout_width="370dp"
-        android:layout_height="149dp"
-        android:text=""
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.711" />
 
 
-</android.support.constraint.ConstraintLayout>
+    <!--
+        <TextView
+            android:id="@+id/totalTxt"
+            android:layout_width="370dp"
+            android:layout_height="148dp"
+            android:text=""
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+    -->
+
+    </android.support.constraint.ConstraintLayout>
