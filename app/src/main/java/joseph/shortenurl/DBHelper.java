@@ -20,7 +20,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        db.execSQL("CREATE TABLE URL_LIST (id INTEGER PRIMARY KEY AUTOINCREMENT, originalUrl TEXT, shortUrl TEXT, count INTEGER);");
+        db.execSQL("CREATE TABLE URL_LIST (id INTEGER PRIMARY KEY AUTOINCREMENT, originalUrl TEXT, shortUrl TEXT, countOfTrans INTEGER, countOfUsed INTEGER);");
     }
 
     // DB 업그레이드를 위해 버전이 변경될 때 호출되는 함수
@@ -30,19 +30,26 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     // 데이터 삽입 함수
-    public void insert(String originalUrl, String shortUrl, int count) {
+    public void insert(String originalUrl, String shortUrl, int countOfTrans, int countOfUsed) {
         // 읽고 쓰기가 가능하게 DB 열기
         SQLiteDatabase db = getWritableDatabase();
         // DB에 입력한 값으로 행 추가
-        db.execSQL("INSERT INTO URL_LIST VALUES(null, '" + originalUrl + "', '" + shortUrl + "', " + count + ");");
+        db.execSQL("INSERT INTO URL_LIST VALUES(null, '" + originalUrl + "', '" + shortUrl + "', " + countOfTrans + ", " + countOfUsed + ");");
         db.close();
     }
 
-    public void update(String shortUrl, int count, long id) {
+    public void update(String shortUrl, int countOfTrans, long id) {
         SQLiteDatabase db = getWritableDatabase();
         // 입력한 항목과 일치하는 행의 정보 수정
         db.execSQL("UPDATE URL_LIST SET shortUrl= '" + shortUrl + "' WHERE id= " + id + ";");
-        db.execSQL("UPDATE URL_LIST SET count= " + count + " WHERE id= " + id + ";");
+        db.execSQL("UPDATE URL_LIST SET countOfTrans= " + countOfTrans + " WHERE id= " + id + ";");
+        db.close();
+    }
+
+    public void update(int countOfUsed, long id) {
+        SQLiteDatabase db = getWritableDatabase();
+        // 입력한 항목과 일치하는 행의 정보 수정
+        db.execSQL("UPDATE URL_LIST SET countOfUsed= " + countOfUsed + " WHERE id= " + id + ";");
         db.close();
     }
 
@@ -65,6 +72,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return result;
     }
 
+    // 해당 URL의 ID를 반환하는 함수
     public Long getId(String originalUrl){
         SQLiteDatabase db = getReadableDatabase();
         long id=0;
@@ -92,8 +100,8 @@ public class DBHelper extends SQLiteOpenHelper {
         return originalUrl;
     }
 
-    // 원래 URL DB에서 가져와 반환하는 함수
-    public int getCount(long id){
+    //  해당 URL의 변환된 횟수를 반환하는 함수
+    public int getCountOfTrans(long id){
         int count =0;
         SQLiteDatabase db = getReadableDatabase();
         String sql = "SELECT * FROM URL_LIST WHERE id = "+id+";";
@@ -101,6 +109,20 @@ public class DBHelper extends SQLiteOpenHelper {
         // result(Cursor 객체)가 비어 있으면 false 리턴
         if(result.moveToFirst()){
             count = result.getInt(3);
+        }
+        result.close();
+        return count;
+    }
+
+    //  해당 URL이 사용된 횟수를 반환하는 함수
+    public int getCountOfUsed(long id){
+        int count =0;
+        SQLiteDatabase db = getReadableDatabase();
+        String sql = "SELECT * FROM URL_LIST WHERE id = "+id+";";
+        Cursor result = db.rawQuery(sql, null);
+        // result(Cursor 객체)가 비어 있으면 false 리턴
+        if(result.moveToFirst()){
+            count = result.getInt(4);
         }
         result.close();
         return count;

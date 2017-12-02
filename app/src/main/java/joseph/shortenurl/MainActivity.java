@@ -6,29 +6,29 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static TextView shortenUrlResultTxt;
-    private static TextView countTxt;
-    private static AutoCompleteTextView originUrlEditTxt;
-    private static AutoCompleteTextView openBrowserEditTxt;
-    private static Button translateBtn;
-    private static Button copyBtn;
-    private static Button shareBtn;
-    private static Button goBtn;
+    private TextView shortenUrlResultTxt;
+    private TextView countOfTransTxt;
+    private TextView countOfUsedTxt;
+    private TextView splitTxt;
+    private AutoCompleteTextView originUrlEditTxt;
+    private AutoCompleteTextView openBrowserEditTxt;
+    private Button translateBtn;
+    private Button copyBtn;
+    private Button shareBtn;
+    private Button goBtn;
     private UrlShorten urlShorten;
-    private static WebView webView;
     private ClipboardManager clipboardManager;
-    private static TextView totalTxt;
-    private static DBHelper dbHelper;
+    private DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,55 +36,64 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         shortenUrlResultTxt = (TextView) findViewById(R.id.resultTxt);
-        countTxt  = (TextView) findViewById(R.id.countTxt);
+        countOfTransTxt  = (TextView) findViewById(R.id.countOfTransTxt);
+        countOfUsedTxt  = (TextView) findViewById(R.id.countOfUsedTxt);
+        splitTxt  = (TextView) findViewById(R.id.splitTxt);
         originUrlEditTxt = (AutoCompleteTextView) findViewById(R.id.originUrlEditTxt);
         openBrowserEditTxt = (AutoCompleteTextView) findViewById(R.id.openBrowserEditTxt);
         translateBtn = (Button) findViewById(R.id.translationBtn);
         copyBtn = (Button) findViewById(R.id.copyBtn);
         shareBtn = (Button) findViewById(R.id.shareBtn);
         goBtn = (Button) findViewById(R.id.goBtn);
-        webView = (WebView) findViewById(R.id.webView);
-        urlShorten = new UrlShorten();
         clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        //totalTxt = (TextView) findViewById(R.id.totalTxt);
+        urlShorten = new UrlShorten();
         dbHelper = new DBHelper(getApplicationContext(), "URL.db", null, 1);
 
         // URL 변환 버튼에 대한 기능
         translateBtn.setOnClickListener(new View.OnClickListener() {
             String result;
             long id;
-            int count;
+            int countOfTrans, countOfUsed;
             @Override
             public void onClick(View v) {
                 // 아무런 정보도 입력하지 않은 상태에서 버튼을 눌렀을 때에 대한 예외처리
                 if (originUrlEditTxt.getText().toString().equals("")) {
                     shortenUrlResultTxt.setText("");
-                    countTxt.setText("");
+                    countOfTransTxt.setText("");
+                    splitTxt.setText("");
+                    countOfUsedTxt.setText("");
                     Toast.makeText(MainActivity.this, "URL을 입력하여 주세요.", Toast.LENGTH_SHORT).show();
                 }
                 // 올바르지 않은 URL형식을 입력했을 때의 예외처리
                 else if (!isUrlMatch(originUrlEditTxt.getText().toString())) {
                     shortenUrlResultTxt.setText("");
-                    countTxt.setText("");
+                    countOfTransTxt.setText("");
+                    splitTxt.setText("");
+                    countOfUsedTxt.setText("");
                     Toast.makeText(MainActivity.this, "올바른 URL 형식을 입력하여 주세요.", Toast.LENGTH_SHORT).show();
                 }
                 // 올바른 URL 입력 시 변환
                 else {
-                    count=0;
+                    countOfTrans=0;
+                    countOfUsed=0;
                     String originalUrl = originUrlEditTxt.getText().toString();
                     // 데이터베이스에 해당 url이 없는 경우 삽입(중복방지)
                     if (!dbHelper.isUrlExist(originalUrl)) {
-                        dbHelper.insert(originalUrl, "-",0);
+                        dbHelper.insert(originalUrl, "-",0,0);
                         id = dbHelper.getId(originalUrl);
                     } else {
                         id = dbHelper.getId(originalUrl);
-                        count = dbHelper.getCount(id);
+                        countOfTrans = dbHelper.getCountOfTrans(id);
+                        countOfUsed = dbHelper.getCountOfUsed(id);
                     }
+                    // 62진법을 통해 줄여진 url 반환
                     result = urlShorten.toBase62(id);
-                    count++;
-                    dbHelper.update(result,count, id);
+                    countOfTrans++;
+                    dbHelper.update(result,countOfTrans, id);
                     shortenUrlResultTxt.setText("http://localhost/" + result);
-                    countTxt.setText("총 "+count+" 번 변환됨");
+                    countOfTransTxt.setText("변환된 횟수 : "+countOfTrans+" 번");
+                    splitTxt.setText("/");
+                    countOfUsedTxt.setText("사용된 횟수 : "+countOfUsed+" 번");
                 }
             }
         });
@@ -123,7 +132,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                ClipData clipData;
+                int countOfUsed=0;
+                long id=0;
                 String result;
                 if (!openBrowserEditTxt.getText().toString().equals("")) {
                     String url = openBrowserEditTxt.getText().toString();
@@ -133,6 +143,9 @@ public class MainActivity extends AppCompatActivity {
                         if (!result.equals("NONE")) {
                             // 데이터베이스에서 가져온 원래 URL 저장
                             url = result;
+                            id = dbHelper.getId(url);
+                            countOfUsed = dbHelper.getCountOfUsed(id);
+                            dbHelper.update(countOfUsed+1,id);
                         }
                     }
                     // URL 열기
